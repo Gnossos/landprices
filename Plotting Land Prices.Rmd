@@ -1,12 +1,16 @@
 ---
 title: "Plotting Land Prices"
+author: "Marshall M. A. Feldman"
+
+bibliography:
+  - references.bib
 output:
   html_notebook:
     toc: TRUE
 ---
 
 # Introduction  
-This notebook documents the construction of a time series plot of land prices.  
+This notebook documents the construction of a time series plot of land prices.
 
 # Data  
 
@@ -16,11 +20,17 @@ Three types of data are used for this plot:
 * Consumer Price Index (CPI)
 Each is described below.  
 
-## Land Prices
+## Land Prices  
+The main data for this graph come from the Lincoln Institute of Land Policy's "Land and Property Values in the U.S" database. The Institute describes these data as follows:  
+
+>This database contains information on the values and rents of residential properties in the United States, covering four dimensions: the ratio of rents to prices for the stock of all owner-occupied housing; values and price indexes for all land, structures, and housing in the country; values of homes, structures, and land, and land and home price indexes for 50 states and the District of Columbia; and values and price indexes for land, structures, and housing for single-family owner-occupied housing units in 46 major U.S. metropolitan areas. A key feature of this data is separate price indices for land and structures, in addition to the more common price indices for property -- land and structures combined.
 
 ## Recessions
 
 ## Consumer Price Index (CPI)
+
+# Configuration
+
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
 

@@ -9,6 +9,7 @@
 <meta name="generator" content="pandoc" />
 
 
+<meta name="author" content="Marshall M. A. Feldman" />
 
 
 <title>Plotting Land Prices</title>
@@ -167,6 +168,7 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">Plotting Land Prices</h1>
+<h4 class="author"><em>Marshall M. A. Feldman</em></h4>
 
 </div>
 
@@ -178,6 +180,7 @@ $(document).ready(function () {
 <li><a href="#recessions">Recessions</a></li>
 <li><a href="#consumer-price-index-cpi">Consumer Price Index (CPI)</a></li>
 </ul></li>
+<li><a href="#configuration">Configuration</a></li>
 </ul>
 </div>
 
@@ -191,12 +194,20 @@ $(document).ready(function () {
 <p>Three types of data are used for this plot: * Land prices * Recessions * Consumer Price Index (CPI) Each is described below.</p>
 <div id="land-prices" class="section level2">
 <h2>Land Prices</h2>
+<p>The main data for this graph come from the Lincoln Institute of Land Policy’s “Land and Property Values in the U.S” database. The Institute describes these data as follows:</p>
+<blockquote>
+<p>This database contains information on the values and rents of residential properties in the United States, covering four dimensions: the ratio of rents to prices for the stock of all owner-occupied housing; values and price indexes for all land, structures, and housing in the country; values of homes, structures, and land, and land and home price indexes for 50 states and the District of Columbia; and values and price indexes for land, structures, and housing for single-family owner-occupied housing units in 46 major U.S. metropolitan areas. A key feature of this data is separate price indices for land and structures, in addition to the more common price indices for property – land and structures combined.</p>
+</blockquote>
 </div>
 <div id="recessions" class="section level2">
 <h2>Recessions</h2>
 </div>
 <div id="consumer-price-index-cpi" class="section level2">
 <h2>Consumer Price Index (CPI)</h2>
+</div>
+</div>
+<div id="configuration" class="section level1">
+<h1>Configuration</h1>
 <p>This is an <a href="http://rmarkdown.rstudio.com">R Markdown</a> Notebook. When you execute code within the notebook, the results appear beneath the code.</p>
 <p>Try executing this chunk by clicking the <em>Run</em> button within the chunk or by placing your cursor inside it and pressing <em>Cmd+Shift+Enter</em>.</p>
 <!-- rnb-text-end -->
@@ -210,9 +221,8 @@ $(document).ready(function () {
 <p>When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the <em>Preview</em> button or press <em>Cmd+Shift+K</em> to preview the HTML file).</p>
 <!-- rnb-text-end -->
 </div>
-</div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUGxvdHRpbmcgTGFuZCBQcmljZXMiCm91dHB1dDoKICBodG1sX25vdGVib29rOgogICAgdG9jOiBUUlVFCi0tLQoKIyBJbnRyb2R1Y3Rpb24gIApUaGlzIG5vdGVib29rIGRvY3VtZW50cyB0aGUgY29uc3RydWN0aW9uIG9mIGEgdGltZSBzZXJpZXMgcGxvdCBvZiBsYW5kIHByaWNlcy4gIAoKIyBEYXRhICAKClRocmVlIHR5cGVzIG9mIGRhdGEgYXJlIHVzZWQgZm9yIHRoaXMgcGxvdDoKKiBMYW5kIHByaWNlcwoqIFJlY2Vzc2lvbnMKKiBDb25zdW1lciBQcmljZSBJbmRleCAoQ1BJKQpFYWNoIGlzIGRlc2NyaWJlZCBiZWxvdy4gIAoKIyMgTGFuZCBQcmljZXMKCiMjIFJlY2Vzc2lvbnMKCiMjIENvbnN1bWVyIFByaWNlIEluZGV4IChDUEkpCgpUaGlzIGlzIGFuIFtSIE1hcmtkb3duXShodHRwOi8vcm1hcmtkb3duLnJzdHVkaW8uY29tKSBOb3RlYm9vay4gV2hlbiB5b3UgZXhlY3V0ZSBjb2RlIHdpdGhpbiB0aGUgbm90ZWJvb2ssIHRoZSByZXN1bHRzIGFwcGVhciBiZW5lYXRoIHRoZSBjb2RlLiAKClRyeSBleGVjdXRpbmcgdGhpcyBjaHVuayBieSBjbGlja2luZyB0aGUgKlJ1biogYnV0dG9uIHdpdGhpbiB0aGUgY2h1bmsgb3IgYnkgcGxhY2luZyB5b3VyIGN1cnNvciBpbnNpZGUgaXQgYW5kIHByZXNzaW5nICpDbWQrU2hpZnQrRW50ZXIqLiAKCmBgYHtyfQpwbG90KGNhcnMpCmBgYAoKQWRkIGEgbmV3IGNodW5rIGJ5IGNsaWNraW5nIHRoZSAqSW5zZXJ0IENodW5rKiBidXR0b24gb24gdGhlIHRvb2xiYXIgb3IgYnkgcHJlc3NpbmcgKkNtZCtPcHRpb24rSSouCgpXaGVuIHlvdSBzYXZlIHRoZSBub3RlYm9vaywgYW4gSFRNTCBmaWxlIGNvbnRhaW5pbmcgdGhlIGNvZGUgYW5kIG91dHB1dCB3aWxsIGJlIHNhdmVkIGFsb25nc2lkZSBpdCAoY2xpY2sgdGhlICpQcmV2aWV3KiBidXR0b24gb3IgcHJlc3MgKkNtZCtTaGlmdCtLKiB0byBwcmV2aWV3IHRoZSBIVE1MIGZpbGUpLgo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUGxvdHRpbmcgTGFuZCBQcmljZXMiCmF1dGhvcjogIk1hcnNoYWxsIE0uIEEuIEZlbGRtYW4iCgpiaWJsaW9ncmFwaHk6CiAgLSByZWZlcmVuY2VzLmJpYgpvdXRwdXQ6CiAgaHRtbF9ub3RlYm9vazoKICAgIHRvYzogVFJVRQotLS0KCiMgSW50cm9kdWN0aW9uICAKVGhpcyBub3RlYm9vayBkb2N1bWVudHMgdGhlIGNvbnN0cnVjdGlvbiBvZiBhIHRpbWUgc2VyaWVzIHBsb3Qgb2YgbGFuZCBwcmljZXMuCgojIERhdGEgIAoKVGhyZWUgdHlwZXMgb2YgZGF0YSBhcmUgdXNlZCBmb3IgdGhpcyBwbG90OgoqIExhbmQgcHJpY2VzCiogUmVjZXNzaW9ucwoqIENvbnN1bWVyIFByaWNlIEluZGV4IChDUEkpCkVhY2ggaXMgZGVzY3JpYmVkIGJlbG93LiAgCgojIyBMYW5kIFByaWNlcyAgClRoZSBtYWluIGRhdGEgZm9yIHRoaXMgZ3JhcGggY29tZSBmcm9tIHRoZSBMaW5jb2xuIEluc3RpdHV0ZSBvZiBMYW5kIFBvbGljeSdzICJMYW5kIGFuZCBQcm9wZXJ0eSBWYWx1ZXMgaW4gdGhlIFUuUyIgZGF0YWJhc2UuIFRoZSBJbnN0aXR1dGUgZGVzY3JpYmVzIHRoZXNlIGRhdGEgYXMgZm9sbG93czogIAoKPlRoaXMgZGF0YWJhc2UgY29udGFpbnMgaW5mb3JtYXRpb24gb24gdGhlIHZhbHVlcyBhbmQgcmVudHMgb2YgcmVzaWRlbnRpYWwgcHJvcGVydGllcyBpbiB0aGUgVW5pdGVkIFN0YXRlcywgY292ZXJpbmcgZm91ciBkaW1lbnNpb25zOiB0aGUgcmF0aW8gb2YgcmVudHMgdG8gcHJpY2VzIGZvciB0aGUgc3RvY2sgb2YgYWxsIG93bmVyLW9jY3VwaWVkIGhvdXNpbmc7IHZhbHVlcyBhbmQgcHJpY2UgaW5kZXhlcyBmb3IgYWxsIGxhbmQsIHN0cnVjdHVyZXMsIGFuZCBob3VzaW5nIGluIHRoZSBjb3VudHJ5OyB2YWx1ZXMgb2YgaG9tZXMsIHN0cnVjdHVyZXMsIGFuZCBsYW5kLCBhbmQgbGFuZCBhbmQgaG9tZSBwcmljZSBpbmRleGVzIGZvciA1MCBzdGF0ZXMgYW5kIHRoZSBEaXN0cmljdCBvZiBDb2x1bWJpYTsgYW5kIHZhbHVlcyBhbmQgcHJpY2UgaW5kZXhlcyBmb3IgbGFuZCwgc3RydWN0dXJlcywgYW5kIGhvdXNpbmcgZm9yIHNpbmdsZS1mYW1pbHkgb3duZXItb2NjdXBpZWQgaG91c2luZyB1bml0cyBpbiA0NiBtYWpvciBVLlMuIG1ldHJvcG9saXRhbiBhcmVhcy4gQSBrZXkgZmVhdHVyZSBvZiB0aGlzIGRhdGEgaXMgc2VwYXJhdGUgcHJpY2UgaW5kaWNlcyBmb3IgbGFuZCBhbmQgc3RydWN0dXJlcywgaW4gYWRkaXRpb24gdG8gdGhlIG1vcmUgY29tbW9uIHByaWNlIGluZGljZXMgZm9yIHByb3BlcnR5IC0tIGxhbmQgYW5kIHN0cnVjdHVyZXMgY29tYmluZWQuCgojIyBSZWNlc3Npb25zCgojIyBDb25zdW1lciBQcmljZSBJbmRleCAoQ1BJKQoKIyBDb25maWd1cmF0aW9uCgoKVGhpcyBpcyBhbiBbUiBNYXJrZG93bl0oaHR0cDovL3JtYXJrZG93bi5yc3R1ZGlvLmNvbSkgTm90ZWJvb2suIFdoZW4geW91IGV4ZWN1dGUgY29kZSB3aXRoaW4gdGhlIG5vdGVib29rLCB0aGUgcmVzdWx0cyBhcHBlYXIgYmVuZWF0aCB0aGUgY29kZS4gCgpUcnkgZXhlY3V0aW5nIHRoaXMgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpSdW4qIGJ1dHRvbiB3aXRoaW4gdGhlIGNodW5rIG9yIGJ5IHBsYWNpbmcgeW91ciBjdXJzb3IgaW5zaWRlIGl0IGFuZCBwcmVzc2luZyAqQ21kK1NoaWZ0K0VudGVyKi4gCgpgYGB7cn0KcGxvdChjYXJzKQpgYGAKCkFkZCBhIG5ldyBjaHVuayBieSBjbGlja2luZyB0aGUgKkluc2VydCBDaHVuayogYnV0dG9uIG9uIHRoZSB0b29sYmFyIG9yIGJ5IHByZXNzaW5nICpDbWQrT3B0aW9uK0kqLgoKV2hlbiB5b3Ugc2F2ZSB0aGUgbm90ZWJvb2ssIGFuIEhUTUwgZmlsZSBjb250YWluaW5nIHRoZSBjb2RlIGFuZCBvdXRwdXQgd2lsbCBiZSBzYXZlZCBhbG9uZ3NpZGUgaXQgKGNsaWNrIHRoZSAqUHJldmlldyogYnV0dG9uIG9yIHByZXNzICpDbWQrU2hpZnQrSyogdG8gcHJldmlldyB0aGUgSFRNTCBmaWxlKS4K</div>
 
 
 
