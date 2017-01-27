@@ -10,18 +10,55 @@ output:
 ---
 
 # Introduction  
-This notebook documents the construction of a time series plot of land prices.
+This notebook documents the construction of a time-series plot of land prices.
 
 # Data  
 
-Three types of data are used for this plot:
+Three types of data are used for this plot:  
+
 * Land prices
 * Recessions
-* Consumer Price Index (CPI)
+* Consumer Price Index (CPI)  
+
 Each is described below.  
 
 ## Land Prices  
-The main data for this graph come from the Lincoln Institute of Land Policy's "Land and Property Values in the U.S" database. The Institute describes these data as follows:  
+
+The most important data for this plot are from the Lincoln Institute of Land Policy's
+["Land and Property Values in the U.S" databases](http://datatoolkits.lincolninst.edu/subcenters/land-values/). The Institute currently hosts four different datasets:  
+
+  1. The ratio of rents to prices for the stock of all owner-occupied housing;  
+  2.  Values and price indexes for all land, structures, and housing in residential use;  
+  3. Values of homes, structures, and land in residential use, and land and home price indexes for 50 states and the District of Columbia; and  
+  4. Values and price indexes for land, structures, and housing for single-family owner-occupied housing units in 46 major U.S. metropolitan areas.  
+
+The present analysis uses the second of these, Aggregate U.S. Land Prices.  
+
+There are three series in this dataset:  
+
+|    Series   |Property Sale Price Data Source| Observation Frequency | Period Covered  |
+|:------------|:------------------------------|:---------------------:|:---------------:|
+|   CSW       |Case-Shiller-Weiss             |       Quarterly       | 1975:1 - 2016:1 |
+|   FHFA      |Federal Housing Finance Agency |       Quarterly       | 1975:1 - 2016:1 |
+| Historical  |Decennial U.S. Census          |         Annual        |   1930 - 2000   |
+----------------------------------------------------------------------------------------
+
+Each file has identically named variables:  
+
+| Variable Name |                           Value Label                |
+|:--------------|:-----------------------------------------------------|
+|     OBS       | Observation date (e.g., 1975Q1)                      |
+| LAND_NOM      | Aggregate market value of residential land           |
+| MKVAL_NOM     | Aggregate market value of homes                      |
+| STRUC_NOM	    | Aggregate replacement cost of residential structures | 
+| LAND_PI	      | Price index for residential land                     |
+| MKVAL_PI	    | Price index for homes                                |
+| STRUC_PI	    | Price index for residential structures               |
+| CONS_PI	      | Price index for consumption                          |
+------------------------------------------------------------------------
+
+
+The Institute describes these data as follows:  
 
 >This database contains information on the values and rents of residential properties in the United States, covering four dimensions: the ratio of rents to prices for the stock of all owner-occupied housing; values and price indexes for all land, structures, and housing in the country; values of homes, structures, and land, and land and home price indexes for 50 states and the District of Columbia; and values and price indexes for land, structures, and housing for single-family owner-occupied housing units in 46 major U.S. metropolitan areas. A key feature of this data is separate price indices for land and structures, in addition to the more common price indices for property -- land and structures combined.
 
@@ -30,6 +67,8 @@ The main data for this graph come from the Lincoln Institute of Land Policy's "L
 ## Consumer Price Index (CPI)
 
 # Configuration
+
+# R Code
 
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
@@ -43,3 +82,5 @@ plot(cars)
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
 
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file).
+
+# References
