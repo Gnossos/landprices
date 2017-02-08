@@ -2,8 +2,8 @@
 title: "Plotting Land Prices"
 author: "Marshall M. A. Feldman"
 
-#bibliography:
-#  - references.bib
+bibliography:
+  - references.bib
 output:
   html_notebook:
     toc: TRUE
@@ -14,12 +14,11 @@ This notebook documents the construction of a time-series plot of land prices.
 
 # Data  
 
-Four types of data are used for this plot:  
+Three types of data are used for this plot:  
 
 * Land prices
 * Recessions
-* Consumer Price Index (CPI)
-* Aggregate compensation
+* Consumer Price Index (CPI)  
 
 Each is described below.  
 
