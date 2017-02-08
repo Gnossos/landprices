@@ -14,12 +14,20 @@ This notebook documents the construction of a time-series plot of land prices.
 
 # Data  
 
+<<<<<<< HEAD
 Four types of data are used for this plot:  
 
 * Land prices
 * Recessions
 * Consumer Price Index (CPI)
 * Aggregate compensation
+=======
+Three types of data are used for this plot:  
+
+* Land prices
+* Recessions
+* Consumer Price Index (CPI)  
+>>>>>>> 0ff9b4e30d21b0867aa9f6861fae0b1a0e5c12c4
 
 Each is described below.  
 
@@ -37,17 +45,29 @@ The present analysis uses the second of these, Aggregate U.S. Land Prices.
 
 There are three series in this dataset:  
 
+<<<<<<< HEAD
 |    Series   |Property Sale Price Data Source| Observation Frequency | Period Covered  |
 |:------------|:------------------------------|:---------------------:|:---------------:|
 |   CSW       |Case-Shiller-Weiss             |       Quarterly       | 1975:1 - 2016:1 |
 |   FHFA      |Federal Housing Finance Agency |       Quarterly       | 1975:1 - 2016:1 |
 | Historical  |Decennial U.S. Census          |         Annual        |   1930 - 2000   |
+=======
+| Series Name |  Property-Price Data Source  | Observation Frequency | Period Covered  |
+|:-----------:|:----------------------------:|:---------------------:|:---------------:|
+|   CSW       |      Case-Shiller-Weiss      |       Quarterly       | 1975:1 - 2016:1 |
+|   FHFA      |Federal Housing Finance Agency|       Quarterly       | 1975:1 - 2016:1 |
+| Historical  |    Decennial U.S. Census     |         Annual        |   1930 - 2000   |
+>>>>>>> 0ff9b4e30d21b0867aa9f6861fae0b1a0e5c12c4
 ----------------------------------------------------------------------------------------
 
 Each file has identically named variables:  
 
 | Variable Name |                           Value Label                |
+<<<<<<< HEAD
 |:--------------|:-----------------------------------------------------|
+=======
+|:-------------|:------------------------------------------------------|
+>>>>>>> 0ff9b4e30d21b0867aa9f6861fae0b1a0e5c12c4
 |     OBS       | Observation date (e.g., 1975Q1)                      |
 | LAND_NOM      | Aggregate market value of residential land           |
 | MKVAL_NOM     | Aggregate market value of homes                      |
