@@ -26,47 +26,6 @@ library("ProjectTemplate"); load.project(); # Let ProjectTemplate set things up 
 #### MUNGING BEGINS HERE ####
 # Reference: https://rstudio-pubs-static.s3.amazonaws.com/40873_5fbe3860854a47c38a58aabd01f9cf9d.html
 
-## Land & Housing Data
-# Source: http://datatoolkits.lincolninst.edu/subcenters/land-values/price-and-quantity.asp
-# Make the original data frame into an xts time series. Xts requires a date variable.
-# So convert the first column (variable) to a yearqtr object.
-# NOTE: This only works with the CSW and FHFA files. The Historical file is annual and therefore requires as.year
-#   instead of as.yearqtr.
-CSW.national.2016q1.xts <- xts(CSW.national.2016q1[,-1], order.by = as.yearqtr(CSW.national.2016q1[,1]))
-
-# Make price indices based on 1975
-CSW.national.2016q1.xts$LAND_index75 <- 100*CSW.national.2016q1.xts$LAND_PI/
-  rep_len(first(CSW.national.2016q1.xts$LAND_PI),nrow(CSW.national.2016q1.xts))
-names(CSW.national.2016q1.xts[,ncol(CSW.national.2016q1.xts)]) <- "LAND_index75"
-
-CSW.national.2016q1.xts$MKVAL_index75 <- 100*CSW.national.2016q1.xts$MKVAL_PI/
-  rep_len(first(CSW.national.2016q1.xts$MKVAL_PI),nrow(CSW.national.2016q1.xts))
-names(CSW.national.2016q1.xts[,ncol(CSW.national.2016q1.xts)]) <- "MKVAL_index75"
-
-CSW.national.2016q1.xts$STRUC_index75 <- 100*CSW.national.2016q1.xts$STRUC_PI/
-  rep_len(first(CSW.national.2016q1.xts$STRUC_PI),nrow(CSW.national.2016q1.xts))
-names(CSW.national.2016q1.xts[,ncol(CSW.national.2016q1.xts)]) <- "STRUC_index75"
-
-CSW.national.2016q1.xts$CONS_index75 <- 100*CSW.national.2016q1.xts$CONS_PI/
-  rep_len(first(CSW.national.2016q1.xts$CONS_PI),nrow(CSW.national.2016q1.xts))
-names(CSW.national.2016q1.xts[,ncol(CSW.national.2016q1.xts)]) <- "CONS_index75"
-
-# Add variable labels
-xtsAttributes(CSW.national.2016q1.xts) <- list(
-  CSW.national.2016q1.xts = "Case-Schiller-Weiss-based price index: aggregate land data, quarterly, 1975:1-2016:1",
-  LAND_NOM="Aggregate market value of residential land",
-  MKVAL_NOM="Aggregate market value of dwellings",
-  STRUC_NOM="Aggregate replacement cost of residential structures",
-  LAND_PI="Price index for residential land",
-  MKVAL_PI="Price index for dwellings",
-  STRUC_PI="Price index for residential structures",
-  CONS_PI="Price index for consumption",
-  LAND_index75="Price index for residential land (1975 = 100)",
-  MKVAL_index75="Price index for dwellings (1975 = 100)",
-  STRUC_index75="Price index for residential structures (1975 = 100)",
-  LAND_index75="Price index for consumption (1975 = 100)"
-)
-
 
 ## FRED data
 library(fredr) # These library calls should be unnecessary with ProjectTemplate
