@@ -7,14 +7,14 @@ redate_base_xts <- function(original.xts,newbase=index(first(original.xts)),date
   # format = "%y" (2-digiit year without century; see format() for other options)
 {
   # Get variable labels if there are any
-  if (exists(xtsAttributes(original.xts)$var.labels)){
-    var.labels <- xtsAttributes((original.xts)[["var.labels"]])  
+  if (!(is.null(xtsAttributes(original.xts)$var.labels))){
+    var.labels <- xtsAttributes((original.xts)$var.labels)  
   }
   
   # Change the base of each column specified by original.xts
   redated.xts <- xts(order.by = index(original.xts)) # Start with an empty xts matrix
   for(i in 1:ncol(original.xts)){
-    redated.xts <- merge(rebased.xts,original.xts[,i]/rep_len(original.xts[
+    redated.xts <- merge(redated.xts,original.xts[,i]/rep_len(original.xts[
       eval(call(paste("as.",dateclass,sep=""),newbase)),i],nrow(original.xts))) # Make a redated xts object with entries divided by the new base.
   }
   

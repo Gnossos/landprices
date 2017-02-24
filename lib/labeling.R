@@ -37,14 +37,14 @@
       }
       else {
         if (length(value) != ncol(x)) # if value is a vector, length must = number of columns in the xts object
-          stop("value must have the same length as x")
+          stop("value must have the same length as the xts object. To assign a single label to the object, use self = TRUE.")
         # If value is a vector, then each item becames the var.label for the corresponding variable.
           for (i in seq(ncol(x)))
             xtsAttributes(x)[["var.labels"]][i] <- value[i]
         }
     }
     # Make the object labelled class and return it
-    if ("labelled" %nin% class(x)) {
+    if (!("labelled" %in% class(x))) {
       class(x) <- c("labelled", class(x))
     }
     return(x)
@@ -52,10 +52,14 @@
   
 #   Xts object method
 label.xts <-
-function (x, default = NULL, self = FALSE, ...) 
+function (x, default = NULL, self = FALSE, units = TRUE, ...) 
 {
   if (self) {
-    return(xtsAttributes(x)$label)
+      return(
+        cat(xtsAttributes(x)$label,
+        if (units && length(xtsAttributes(x)$units))
+          paste("[", xtsAttributes(x)$units, "]"), "\n")
+        )
   }
   else {
     if (length(default) > 0 && length(default) != ncol(x)) {
@@ -64,8 +68,34 @@ function (x, default = NULL, self = FALSE, ...)
     else if (length(default) == 0) {
       default <- list(default)
     }
-    labels <- xtsAttributes(x) [["var.labels"]]
-    return(labels)
+    var.labels <- xtsAttributes(x) [["var.labels"]]
+    unit.labels <- xtsAttributes(x) [["unit.labels"]]
+    label.string <- ""
+    if (ncol(x) > 1)
+      linechar = "\n"
+    else
+      linechar = ""
+    
+    if (length(var.labels)) {
+      for (n in names(var.labels))
+        if (n %in% names(x))
+          if (is.null(unit.labels[[n]]))
+            cat(var.labels[[n]], linechar)
+          else
+            cat(var.labels[[n]], paste("[", unit.labels[[n]], "]", sep=""), linechar)
+            
+          
+          # label.string <- cat(
+          #   paste(
+          #     label.string,
+          #     var.labels[[n]],
+          #     if (length(unit.labels[n]))
+          #       paste("[", unit.labels[[n]], "]", sep="")
+          #   )
+          #   , sep = linechar
+          # )
+    }
+    #label.string
   }
 }
 
@@ -105,7 +135,6 @@ function (x, none = "", ...)
     if (missing(self) && ( is.list(value) || is.vector(value))) {
       self <- FALSE
     }
-    browser()
     if (self) { # Add units to the entire object
       # Mimic label<-.default code here
       if (is.list(value)) {
@@ -117,23 +146,23 @@ function (x, none = "", ...)
       xtsAttributes(x) <- list(units=value) # Add the label to the xtsAttributes
     }
     else { # Label the variables in the xts object
-      xtsAttributes(x)$units.labels <- vector("list",ncol(x)) # Create the list of units.labels
-      names(xtsAttributes(x)$units.labels) <- names(x) # and name it.
+      xtsAttributes(x)$unit.labels <- vector("list",ncol(x)) # Create the list of unit.labels
+      names(xtsAttributes(x)$unit.labels) <- names(x) # and name it.
       
       # If either by.name is selected or the value is a list <= the number of variables, use by.name.
-      if (by.name || (is.list(value) && (length(value) <= length(xtsAttributes(x)$units.labels)))) { # This can be used to set a subset of the units labels
-        xtsAttributes(x)$units.labels <- modifyList(xtsAttributes(x)$units.labels,value)
+      if (by.name || (is.list(value) && (length(value) <= length(xtsAttributes(x)$unit.labels)))) { # This can be used to set a subset of the units labels
+        xtsAttributes(x)$unit.labels <- modifyList(xtsAttributes(x)$unit.labels,value)
       }
       else {
         if (length(value) != ncol(x)) # if value is a vector, length must = number of columns in the xts object
           stop("value vector must be the same length as x")
         # If value is a vector, then each item becames the units.label for the corresponding variable.
         for (i in seq(ncol(x)))
-          xtsAttributes(x)[["units.labels"]][i] <- value[i]
+          xtsAttributes(x)[["unit.labels"]][i] <- value[i]
       }
     }
     # Make the object labelled class and return it
-    if ("labelled" %nin% class(x)) {
+    if (!("labelled" %in% class(x))) {
       class(x) <- c("labelled", class(x))
     }
     return(x)
@@ -153,7 +182,7 @@ label.units.xts <-
       else if (length(default) == 0) {
         default <- list(default)
       }
-      units <- xtsAttributes(x) [["units.labels"]]
+      units <- xtsAttributes(x) [["unit.labels"]]
       return(units)
     }
   }
@@ -161,20 +190,32 @@ label.units.xts <-
 
 # print.labelled -- modified from original to handle xts
 print.labelled <-
-function (x, ...) 
+function (x, self=FALSE, labels = FALSE, ...) 
 {
-  x.orig <- x
-  if(is.xts(x)){ # This is added
-    x.df <- as.labelled.data.frame.xts(x)
-    NextMethod("print", object = x.df)
+  x.orig <- x # Save a copy of the original
+  if(is.xts(x)) { # This is added for xts
+    if (self) {
+      if (labels)
+        label(x, self = TRUE)
+    }
+    else {
+      if (labels) {
+        label(x)
+        xtsAttributes(x)$var.labels <- modifyList(xtsAttributes(x),list(var.labels = NULL), keep.null = TRUE)
+      }
+      if (length(xtsAttributes(x)$unit.labels))
+        xtsAttributes(x) <- modifyList(xtsAttributes(x),list(unit.labels = NULL), keep.null = TRUE)
+    }
   }
   else { # This is original
+    # x.orig <- x # Moved to common area
     u <- attr(x, "units", exact = TRUE)
     if (length(u)) 
       attr(x, "units") <- NULL
     cat(attr(x, "label", exact = TRUE), if (length(u)) 
       paste("[", u, "]", sep = ""), "\n")
     attr(x, "label") <- NULL
+  } # Moved this up here because the rest is common
     class(x) <- if (length(class(x)) == 1 && class(x) == "labelled") 
       NULL
     else class(x)[class(x) != "labelled"]
@@ -182,38 +223,50 @@ function (x, ...)
       attr(x, "class") <- NULL
     NextMethod("print")
     invisible(x.orig)
-  }
 }
 
 
-# as.labelled.data.frame.xts -- For .xts objects, make a data frame with appropriately labelled columns
-as.labelled.data.frame.xts <- function(x, ...)
+# as.labelled.xts.data.frame -- For .xts objects, make a data frame with appropriately labelled columns
+as.labelled.xts.data.frame <- function(x, ...)
 {
   if (!is.xts(x))
     stop("x must be an xts object")
+  x.orig <- x
+  class(x) <- "xts"
   x.df <- as.data.frame(x)
-  if (length(xtsAttributes(x)$label))
-    label(x.df) <- xtsAttributes(x)$label
-  for (i in 1:ncol(x.df)){
-    if (length(xtsAttributes(x)$var.labels))
-      label(x.df[,i]) <- xtsAttributes(x)$var.labels[i]
-    if (length(xtsAttributes(x)$units))
-      units(x.df[,i]) <- xtsAttributes(x)$units[i]
-  }
+  if (!(is.null(xtsAttributes(x)$label))) label(x.df, self = TRUE) <- label(x, self = TRUE)
+  x.df <- label.cols(x.df, labels =  xtsAttributes(x)$var.labels)
+  x.df <- label.cols(x.df, as.units = TRUE, labels = xtsAttriutes(x)$unit.labels)
+  class(x.df) <- c("labelled", class(x.df))
   x.df
+}
+
+
+# label.cols -- label data frame columns
+label.cols <- function(x, as.units = FALSE, ...)
+{
+  if (!(exists("labels")))
+    stop("To label columns, you must explicitly pass labels as 'labels =.'")
+  if (is.list(labels))
+    values <- (labels)
+  else
+    values <- list(labels)
+  
+  if (!all(names(values) %in% names(x)))
+    stop("Some variables are not found in x.")
+  if (as.units)
+    for (v in names(values)) label(as.vector(x[v])) <- values[[v]]
+  else
+    for (v in names(values)) label(as.vector(x[v])) <- values[[v]]
+  x
 }
 
 
 print.xts <-
 function (x, ...) 
 {
-  x.orig <- x
-  if(ncol(x) == 1) {
-    x.vec <- as.vector(x)
-    label(x.vec) <- xtsAttributes(x)$var.labels[1]
-    units(x.vec) <- xtsAttributes(x)$var.units[1]
-    NextMethod("print",object = x.vec)
-  }
+  x <- as.data.frame(x)
+  NextMethod("print")
 }
 
 ### Generic methods
@@ -240,7 +293,7 @@ function (x, ..., value)
     stop("value must be character vector of length 1")
   }
   attr(x, "label") <- value
-  if ("labelled" %nin% class(x)) {
+  if (!("labelled" %in% class(x))) {
     class(x) <- c("labelled", class(x))
   }
   return(x)
@@ -283,11 +336,16 @@ function (x, self = TRUE, ..., value)
     return(xx)
   }
   else {
-    if (length(value) != length(x)) {
-      stop("value must have the same length as x")
+    browser()
+    if (is.list(value)){
+      if (!all(names(value) %in% names(x)))
+        stop("Some value names are not found in x.")
+      for (v in names(value)) label(x[[v]]) <- value[[v]]
     }
-    for (i in seq(along.with = x)) {
-      label(x[[i]]) <- value[[i]]
+    else { # Assume sequential
+      if (length(value) != ncol(x))
+        stop("If value is not a named list, its length must equal the number of columns in the data object.")
+    for (i in 1:ncol(x)) label(x[i]) <- value[i]
     }
   }
   return(x)
@@ -370,22 +428,41 @@ function (..., labels = TRUE)
   dotlist
 }
 
-
-# reLabelled - add "labelled" class if necessary
-reLabelled <-
-function (object) 
+# labelPlotmath
+labelPlotmath <-
+function (label, units = NULL, plotmath = TRUE, html = FALSE, 
+          grid = FALSE, chexpr = FALSE) 
 {
-  for (i in 1:length(object)) {
-    x <- object[[i]]
-    lab <- attr(x, "label", exact = TRUE)
-    cl <- class(x)
-    if (length(lab) && !any(cl == "labelled")) {
-      class(x) <- c("labelled", cl)
-      object[[i]] <- x
+  if (!length(label)) 
+    label <- ""
+  if (!length(units) || (length(units) == 1 && is.na(units))) 
+    units <- ""
+  if (html) 
+    return(markupSpecs$html$varlabel(label, units))
+  if (!plotmath) 
+    return(markupSpecs$plain$varlabel(label, units))
+  g <- function(x, y = NULL, xstyle = NULL, ystyle = NULL) {
+    h <- function(w, style = NULL) if (length(style)) 
+      sprintf("%s(%s)", style, w)
+    else w
+    tryparse <- function(z, original, chexpr) {
+      p <- try(parse(text = z), silent = TRUE)
+      if (is.character(p)) 
+        original
+      else if (chexpr) 
+        sprintf("expression(%s)", z)
+      else p
     }
+    if (!length(y)) 
+      return(tryparse(h(plotmathTranslate(x), xstyle), 
+                      x, chexpr))
+    w <- paste("list(", h(plotmathTranslate(x), xstyle), 
+               ",", h(plotmathTranslate(y), ystyle), ")", sep = "")
+    tryparse(w, paste(x, y), chexpr)
   }
-  object
+  if (units == "") 
+    g(label)
+  else if (label == "") 
+    g(units)
+  else g(label, units, ystyle = "scriptstyle")
 }
-
-
-

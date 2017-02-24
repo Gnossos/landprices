@@ -30,15 +30,13 @@ landdata_to_xts <- function(landdata.df,dateclass = "yearqtr", label="")
   
   landdata.xts <- xts(landdata.df[,-1], order.by = eval(call(paste("as.",dateclass,sep=""),landdata.df[,1]))) # Convert df to xts
   landdata.xts <- cbind(landdata.xts[,1:3],100*landdata.xts[,4:7]) # Multiply index numbers by 100, so 100 is base year.
-  xtsAttributes(landdata.xts) <- list(var.labels=var.labels.list)
+  #label(landdata.xts) <- var.labels.list
   
-  # Add index numbers based on first values
-  reindexed.landdata.xts <- redate_base_xts(landdata.xts)
-  
-  landdata.xts <- merge(landdata.xts,reset_base_xts(landdata.xts),join = "inner")
+  landdata.xts <- merge(landdata.xts,redate_base_xts(landdata.xts),join = "inner")
   if (length(label) != 1L)
     stop("label = option sets the single label for the entire xts object and therefore must have length equal to 1")
-  xtsAttributes(landdata.xts) <- list(label = label)
+  # xtsAttributes(landdata.xts) <- list(label = label) # CHECK THIS
+  label(landdata.xts, self = TRUE) <- label
   
   return(landdata.xts)
 }
