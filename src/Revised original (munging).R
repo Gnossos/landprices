@@ -1,6 +1,9 @@
 # Session to draw land value graph(s)
 # See http://www.designandanalytics.com/american-beards-over-time-time-series-in-R-part-1  & part 2 for some fundamentals.
+<<<<<<< HEAD
 # Also see http://projecttemplate.net/getting_started.html on using the ProjectTemplate system
+=======
+>>>>>>> origin/master
 
 # Startup
 setwd("~/OneDrive/Documents/Research-King Mac/Data Analysis/landprices")
@@ -154,7 +157,11 @@ this_theme <- theme_update(
   axis.ticks = element_line(size=0.5),
   # Position the legend left-justified and in the lower right corner of the plot
   legend.justification = c(1,0),
+<<<<<<< HEAD
   legend.position = c(0.25,.75),
+=======
+  legend.position = c(1,0.01),
+>>>>>>> origin/master
   
   # Titles go in the figure captions
   legend.title = element_blank()
@@ -163,7 +170,11 @@ this_theme <- theme_update(
 # CMS wants line size to be 1.5 for 8 x 10, but this seems too thick. Use 1.0.
 update_geom_defaults("line", aes(size = 1.0))
 
+<<<<<<< HEAD
 ### base.plot: Create a base plot, which will be used as a starting point for all of them.
+=======
+#### base.plot: Create a base plot, which will be used as a starting point for all of them.
+>>>>>>> origin/master
 # Variables to be used throughout
 base.breaks <- c("Land","Structures","Market", "Compensation", "Consumer") # Standard breaks for legends
 base.colors <- c("Land"="#4daf4a", "Structures"="#ff7f00",
@@ -181,8 +192,14 @@ base.plot <- base.plot + xlab("Year") + # Label the x axis
   # And format it
   scale_x_date(labels = date_format("%Y"),
                breaks = date_breaks("2 years"), 
+<<<<<<< HEAD
                limits = c(as.Date(index(first(CSW.national.2016q1.xts))),Sys.Date())
   )
+=======
+               limits = c(as.Date(index(CSW.national.2016q1.xts)[1]),Sys.Date()))
+  ## Add recession bars and resave the plot so we have it for later.
+  base.plot <- nberShade(base.plot, fill="#a6cee3")
+>>>>>>> origin/master
 
   ## Add recession bars and resave the plot so we have it for later.
   base.plot
@@ -233,6 +250,8 @@ MV.plot <- base.plot + # Start the plot
 
 ## Label the ordinate axis
   ylab("Aggregate Market Value (US$B)") +
+  
+  # scale_x_date(expand = c(0,0)) +
   
   # scale_x_date(expand = c(0,0)) +
   
@@ -356,6 +375,10 @@ MVpct.plot <- base.plot + # Start the plot
   
   ## Label the ordinate axis
   theme(axis.title.y = element_blank()) +
+<<<<<<< HEAD
+=======
+  scale_y_continuous(labels=percent_format()) + # Label the ordinate axis
+>>>>>>> origin/master
   
   ## Colors of lines and the legend keys
   scale_color_manual(legend.title,
@@ -368,8 +391,12 @@ MVpct.plot <- base.plot + # Start the plot
   geom_line(aes(y=(LAND_NOM/MKVAL_NOM), linetype="Land", color="Land"))
 
 MVpct.plot <- MVpct.plot + theme(legend.position = "none")
+<<<<<<< HEAD
 nberShade(MVpct.plot, fill="#a6cee3") + scale_y_continuous(labels=percent_format()) # Label the ordinate axis
 MVpct.plot <- last_plot() # Comment/uncomment for testing
+=======
+MVpct.plot # Comment/uncomment for testing
+>>>>>>> origin/master
 
 
 ### ROC.plot: Plot the rate of change in the variable, as a percentage.
@@ -582,6 +609,7 @@ aggregate.plot <- base.plot + # Start the plot
           color="Compensation", linetype="Compensation")) +
   theme(legend.position = c(.98,.01))
 
+<<<<<<< HEAD
 aggregate.plot # Comment/uncomment for testing
 nberShade(aggregate.plot, fill="#a6cee3") + scale_y_continuous(labels=percent_format()) # Label the ordinate axis
 aggregate.plot <- last_plot()
@@ -702,3 +730,6 @@ PC_index75.plot <- percapita.base.plot + # Start the plot
   PC_index75.plot # Comment/uncomment for testing
   nberShade(PC_index75.plot, fill="#a6cee3") + scale_y_continuous(labels=comma) # Label the ordinate axis
   PC_index75.plot <- last_plot()
+=======
+# savehistory("~/OneDrive for Marsh@uri.edu/OneDrive/Documents/Research-King Mac/Political Economy/Land Rent in the Circuit of Capital/Data Analysis/Land Values.Rhistory")
+>>>>>>> origin/master
