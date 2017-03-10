@@ -1,9 +1,6 @@
 # Session to draw land value graph(s)
 # See http://www.designandanalytics.com/american-beards-over-time-time-series-in-R-part-1  & part 2 for some fundamentals.
-<<<<<<< HEAD
 # Also see http://projecttemplate.net/getting_started.html on using the ProjectTemplate system
-=======
->>>>>>> origin/master
 
 # Startup
 setwd("~/OneDrive/Documents/Research-King Mac/Data Analysis/landprices")
@@ -27,120 +24,16 @@ library("ProjectTemplate"); load.project(); # Let ProjectTemplate set things up 
 # library(fredr) # To automate access to FRED datafre
 
 #### MUNGING BEGINS HERE ####
-# Reference: https://rstudio-pubs-static.s3.amazonaws.com/40873_5fbe3860854a47c38a58aabd01f9cf9d.html
-
-## Land & Housing Data
-# Source: http://datatoolkits.lincolninst.edu/subcenters/land-values/price-and-quantity.asp
-# Make the original data frame into an xts time series. Xts requires a date variable.
-# So convert the first column (variable) to a yearqtr object.
-# NOTE: This only works with the CSW and FHFA files. The Historical file is annual and therefore requires as.year
-#   instead of as.yearqtr.
-CSW.national.2016q1.xts <- xts(CSW.national.2016q1[,-1], order.by = as.yearqtr(CSW.national.2016q1[,1]))
-
-# Make price indices based on 1975
-CSW.national.2016q1.xts$LAND_index75 <- 100*CSW.national.2016q1.xts$LAND_PI/
-  rep_len(first(CSW.national.2016q1.xts$LAND_PI),nrow(CSW.national.2016q1.xts))
-names(CSW.national.2016q1.xts[,ncol(CSW.national.2016q1.xts)]) <- "LAND_index75"
-
-CSW.national.2016q1.xts$MKVAL_index75 <- 100*CSW.national.2016q1.xts$MKVAL_PI/
-  rep_len(first(CSW.national.2016q1.xts$MKVAL_PI),nrow(CSW.national.2016q1.xts))
-names(CSW.national.2016q1.xts[,ncol(CSW.national.2016q1.xts)]) <- "MKVAL_index75"
-
-CSW.national.2016q1.xts$STRUC_index75 <- 100*CSW.national.2016q1.xts$STRUC_PI/
-  rep_len(first(CSW.national.2016q1.xts$STRUC_PI),nrow(CSW.national.2016q1.xts))
-names(CSW.national.2016q1.xts[,ncol(CSW.national.2016q1.xts)]) <- "STRUC_index75"
-
-CSW.national.2016q1.xts$CONS_index75 <- 100*CSW.national.2016q1.xts$CONS_PI/
-  rep_len(first(CSW.national.2016q1.xts$CONS_PI),nrow(CSW.national.2016q1.xts))
-names(CSW.national.2016q1.xts[,ncol(CSW.national.2016q1.xts)]) <- "CONS_index75"
-
-# Add variable labels
-xtsAttributes(CSW.national.2016q1.xts) <- list(
-  CSW.national.2016q1.xts = "Case-Schiller-Weiss-based price index: aggregate land data, quarterly, 1975:1-2016:1",
-  LAND_NOM="Aggregate market value of residential land",
-  MKVAL_NOM="Aggregate market value of dwellings",
-  STRUC_NOM="Aggregate replacement cost of residential structures",
-  LAND_PI="Price index for residential land",
-  MKVAL_PI="Price index for dwellings",
-  STRUC_PI="Price index for residential structures",
-  CONS_PI="Price index for consumption",
-  LAND_index75="Price index for residential land (1975 = 100)",
-  MKVAL_index75="Price index for dwellings (1975 = 100)",
-  STRUC_index75="Price index for residential structures (1975 = 100)",
-  LAND_index75="Price index for consumption (1975 = 100)"
-)
-
-
-## FRED data
-library(fredr) # These library calls should be unnecessary with ProjectTemplate
-fredr_key("d9898b700d6b107ec1c7f890d09bd6ec")
-library(xts)
-
-# Working age population (LFWA64TTUSQ647N), quarterly,
-# not seasonally adjusted (seasonally adjusted not available for all years)
-# Working Age Population: Aged 15-64: All Persons for the United States
-WAP.fred.xts <- as.xts(fredr_series(series_id="LFWA64TTUSQ647N"))[index(CSW.national.2016q1.xts)]
-names(WAP.fred.xts) <- "WAP"
-WAP.fred.xts$WAP_index75 <- 100*WAP.fred.xts/rep_len(first(WAP.fred.xts),length(WAP.fred.xts))
-
-# Add some variable labels
-xtsAttributes(WAP.fred.xts) <- list(
-  WAP.fred.xts = "Working Age Population: Aged 15-64: All Persons for the United States (FRED series LFWA64TTUSQ647N)",
-  WAP = "Working Age Population: Aged 15-64: All Persons for the United States",
-  WAP_index75 = "Index of working-age population (1975:1 = 100)"
-)
-
-# Compensation of Employees: Wages and Salary Accruals (WASCUR), seasonally adjusted
-# Note: FRED series A576RC1 is for disbursements, whereas WASCUR includes earnings, whether
-# disbursed or not.
-wascur.fred.xts <- as.xts(fredr_series(series_id="WASCUR"))[index(CSW.national.2016q1.xts)]
-names(wascur.fred.xts) <- "compensation"
-wascur.fred.xts$compensation_index75 <- 100*wascur.fred.xts/rep_len(first(wascur.fred.xts),length(wascur.fred.xts))
-
-# Add some variable labels
-xtsAttributes(wascur.fred.xts) <- list(
-  wascur.fred.xts = "Compensation of Employees: Wages and Salary Accruals (FRED series WASCUR)",
-  compensation ="Compensation of employees: wage and salary accruals",
-  compenstion_index75 ="Price index for employee compensation (1975:1 = 100)"
-)
-
-# CPI: All Items Consumer Price Index for All Urban Consumers (CPI-U)
-cpi_u.fred.xts <- as.xts(fredr_series(series_id="CPIAUCSL"))[index(CSW.national.2016q1.xts)] # Read in the data for the relevant years
-index(cpi_u.fred.xts) <- as.yearqtr(index(cpi_u.fred.xts)) # Convert index to quarterly
-names(cpi_u.fred.xts) <- "CPI_U82_84" # Name the first (sole) column
-cpi_u.fred.xts$CPI_U75 <- 100*cpi_u.fred.xts$CPI_U82_84/rep_len(first(cpi_u.fred.xts),length(cpi_u.fred.xts)) # Add a version indexed to 1975
-xtsAttributes(cpi_u.fred.xts) <- list(
-  cpi_u.fred.xts = "Consumer Price Index for All Urban Consumers (CPI-U)",
-  CPI_U82_84 = "Consumer Price Index for All Urban Consumers, 100 = 1982-4",
-  CPI_U75 = "Consumer Price Index for All Urban Consumers, 100 = 1975"
-)
-
-# Real Dollars (Both 1975 = 100 and 1983:3 = 100)
-real.xts <- CSW.national.2016q1.xts[,1:3]*rep_len(cpi_u.fred.xts[as.yearqtr("1983 Q3"),1],length(CSW.national.2016q1.xts[1,]))/cpi_u.fred.xts
 
 
 
-# Now set up the per-capita xts object
-percapita.xts <- sweep(cbind(CSW.national.2016q1.xts[,1:3],wascur.fred.xts[,"compensation"])[index(WAP.fred.xts),],1,WAP.fred.xts[,1],"/") # Land, Dwelling, and Structure values / working-age population
-names(percapita.xts) <- c("LAND_PC", "MKVAL_PC", "STRUC_PC", "compensation_PC") # Rename the columns accordingly
-xtsAttributes(percapita.xts) <- NULL # Start with a blank list of xtsAttributes
-xtsAttributes(percapita.xts) <- list(
-  percapita.xts = "Per-capita levels of land, dwelling, and structure prices and compensation",
-  LAND_PC = paste(xtsAttributes(CSW.national.2016q1.xts)$LAND_NOM, "per capita"),
-  MKVAL_PC = paste(xtsAttributes(CSW.national.2016q1.xts)$MKVAL_NOM, "per capita"),
-  STRUC_PC = paste(xtsAttributes(CSW.national.2016q1.xts)$STRUC_NOM, "per capita"),
-  compensation_PC = paste(xtsAttributes(wascur.fred.xts)$compensation, "per capita")
-)
-# Add index numbers as new columns
-ncol.percapita.xts <- ncol(percapita.xts) # Save the current number of columns
-percapita.xts <- cbind(percapita.xts,sweep(100*percapita.xts,2,percapita.xts[1,],"/"))
-names(percapita.xts)[(1+ncol.percapita.xts):ncol(percapita.xts)] <- paste(names(percapita.xts)[1:4],"_index75", sep="")
-xtsAttributes(percapita.xts) <- list(
-  LAND_PC_index75 = paste(xtsAttributes(percapita.xts)$LAND_PC, "indexed at 1975:1 = 100"),
-  MKVAL_PC_index75 = paste(xtsAttributes(percapita.xts)$MKVAL_PC, "indexed at 1975:1=100"),
-  STRUC_PC_index75 = paste(xtsAttributes(percapita.xts)$STRUC_PC, "indexed at 1975:1=100"),
-  compensation_PC_index75 = paste(xtsAttributes(percapita.xts)$compensation_PC, "indexed at 1975:1=100")
-  )
+
+
+
+
+
+
+
 
 
 

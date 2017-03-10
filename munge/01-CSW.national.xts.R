@@ -11,31 +11,25 @@
 # NOTE: The default only works with the CSW and FHFA files. The Historical file is annual and therefore requires as.year
 #   instead of as.yearqtr.
 
-landdata_to_xts <- function(landdata.df,dateclass = "yearqtr", label="")
+landdata_to_xts <- function(landdata.df,dateclass = "yearqtr", label="", varLabels="")
   #
-  # Convert initial data frame to .xts and add columns with indexes based on the first year of the data.
+  # Convert initial data frame to .xts  ## DELETE THIS ->and add columns with indexes based on the first year of the data.
   # landdata.df - initial data frame (required)
   # dateclass - "yearqtr" (date class of the original data)
+  # label - a label for the entire object
+  # varLabels - variable labels for the new xts object; class of the varLabels object must be legal for the label() function.
 {
-  # Attribute list (for later use)
-  var.labels.list <- list(
-    LAND_NOM="Aggregate market value of residential land ($B)",
-    MKVAL_NOM="Aggregate market value of dwellings ($B)",
-    STRUC_NOM="Aggregate replacement cost of residential structures ($B)",
-    LAND_PI="Price index for residential land (2000 Q2 = 100.0)",
-    MKVAL_PI="Price index for dwellings (2000 Q2 = 100.0)",
-    STRUC_PI="Price index for residential structures (2000 Q2 = 100.0)",
-    CONS_PI="Price index for consumption (2000 Q2 = 100.0)"
-    )
-  
   landdata.xts <- xts(landdata.df[,-1], order.by = eval(call(paste("as.",dateclass,sep=""),landdata.df[,1]))) # Convert df to xts
-  landdata.xts <- cbind(landdata.xts[,1:3],100*landdata.xts[,4:7]) # Multiply index numbers by 100, so 100 is base year.
-  #label(landdata.xts) <- var.labels.list
   
-  landdata.xts <- merge(landdata.xts,redate_base_xts(landdata.xts),join = "inner")
+  # Addition: Change the variable names to omit the _NOM suffix
+  names(landdata.xts) <- unlist(lapply(strsplit(names(landdata.xts), "_NOM"), first))
+  
+  if (length(varLabels) > 0)
+    label(landdata.xts) <- varLabels
+  
+  # landdata.xts <- merge(landdata.xts,redate_base_xts(landdata.xts),join = "inner")
   if (length(label) != 1L)
     stop("label = option sets the single label for the entire xts object and therefore must have length equal to 1")
-  # xtsAttributes(landdata.xts) <- list(label = label) # CHECK THIS
   label(landdata.xts, self = TRUE) <- label
   
   return(landdata.xts)
@@ -49,4 +43,21 @@ extended_name <- function(original,suffix=".xts")
   return(paste(deparse(substitute(original)),suffix,sep=""))
 }
 
-assign(extended_name(CSW.national),landdata_to_xts(CSW.national.2016q1,label="Case-Schiller-Weiss-based price index: aggregate land data, quarterly, 1975:1-2016:1"))
+# Label the variables
+labels <- list(
+  LAND="Aggregate market value of residential land",
+  MKVAL="Aggregate market value of dwellings",
+  STRUC="Aggregate replacement cost of residential structures",
+  LAND_PI="Price index for residential land",
+  MKVAL_PI="Price index for dwellings",
+  STRUC_PI="Price index for residential structures",
+  CONS_PI="Price index for consumption"
+)
+
+# Will create the CSW.national.xts object.
+assign(extended_name(CSW.national),landdata_to_xts(CSW.national.2016q1, varLabels = labels,
+           label="Case-Schiller-Weiss-based price index: aggregate land data, quarterly, 1975:1-2016:1"))
+  
+# Create a corresponding list of units
+unitText <- append(append(rep("US$B",3),rep("2000Q2 = 100", 4)), rep("1975Q1 = 100", 7))
+units(CSW.national.xts) <- setNames(as.list(unitText),names(CSW.national.xts))

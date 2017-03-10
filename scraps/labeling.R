@@ -1,6 +1,5 @@
-# Labeling routines. Mostly taken from Hmisc (separate here to avoid overhead of Hmisc) but extended to xts and with a few bells and whistles.
-#
-# This uses S3 because xts does too. Both should probably be converted to S4.
+# Labeling routines for .xts.
+# Make S3 class because xts does too. Both should probably be converted to S4.
 
 
 ###  Xts methods
@@ -9,7 +8,7 @@
 #   self = FALSE labels var.labels
 
 `label<-.xts` <- 
-  function (x, self = FALSE, by.name = FALSE, ..., value) 
+  function (x, self = FALSE, by.name = FALSE, ..., value)
   {
     if (!is.xts(x)) {
       stop("x must be an xts object")
@@ -56,9 +55,7 @@ function (x, default = NULL, self = FALSE, units = TRUE, ...)
 {
   if (self) {
       return(
-        cat(xtsAttributes(x)$label,
-        if (units && length(xtsAttributes(x)$units))
-          paste("[", xtsAttributes(x)$units, "]"), "\n")
+        xtsAttributes(x)$label
         )
   }
   else {
@@ -68,65 +65,47 @@ function (x, default = NULL, self = FALSE, units = TRUE, ...)
     else if (length(default) == 0) {
       default <- list(default)
     }
-    var.labels <- xtsAttributes(x) [["var.labels"]]
-    unit.labels <- xtsAttributes(x) [["unit.labels"]]
-    label.string <- ""
+    
+    # THESE TWO STATEMENTS ARE PROBLEMATIC BECAUSE THEY'RE TAKING THE ENTIRE LABEL LIST INSTEAD OF THE NUMBER PASSED. THE ADDED COLUMN DIMENSIONS ARE A KLUDGE FIX.
+    var.labels <- xtsAttributes(x)$var.labels [names(x)]
+    var.units <- xtsAttributes(x)$var.units [names(x)]
     if (ncol(x) > 1)
       linechar = "\n"
     else
       linechar = ""
     
+    label.list <- list()
     if (length(var.labels)) {
-      for (n in names(var.labels))
-        if (n %in% names(x))
-          if (is.null(unit.labels[[n]]))
-            cat(var.labels[[n]], linechar)
+      for (n in names(var.labels)) # [1:ncol(x)]) # THE COLUMN DIMENSION KLUDGE AGAIN
+        if (n %in% names(x)) # [1:ncol(x)])
+          if (!units || is.null(var.units[[n]]))
+            label.list[[n]] <- var.labels[[n]]
           else
-            cat(var.labels[[n]], paste("[", unit.labels[[n]], "]", sep=""), linechar)
-            
-          
-          # label.string <- cat(
-          #   paste(
-          #     label.string,
-          #     var.labels[[n]],
-          #     if (length(unit.labels[n]))
-          #       paste("[", unit.labels[[n]], "]", sep="")
-          #   )
-          #   , sep = linechar
-          # )
+            label.list[[n]] <- paste(var.labels[[n]], " [", var.units[[n]], "]", sep="")
     }
-    #label.string
   }
+  return(label.list)
 }
 
-## label.units -- This is a workaround because the xts package has a unit.xts S3 method too. So we'll use a label.units method for xts.
-
-#   Generic replacement method
-`label.units<-` <-
-function (x, ..., value) 
-  UseMethod("label.units<-")
-
-#   Generic object method
-label.units <-
-function (x, default = NULL, ...) 
-  UseMethod("label.units")
-
-#   Default replacement method
-`label.units<-.default` <-
-function (x, ..., value) 
-{
-  NextMethod(`units<-.default`)
-  x
+# Subsetting for labelled xts objects
+`[.labelled` <- function(x, i) {
+  
+  # browser()
+  if (is.xts(x)) { # If it's an .xts object, select the proper subsets of variable and units labels.
+    new.x <- unclass(x)
+    if (!is.null(xtsAttributes(x)$var.labels))
+      xtsAttributes(new.x)$var.list <- xtsAttributes(x)$var.labels [i]
+    if (!is.null(xtsAttributes(x)$var.units))
+      xtsAttributes(new.x)$var.units <- xtsAttributes(x)$var.units [i]
+    NextMethod()
+    return(new.x[i])
+  }
+  else UseMethod(`[`)
+  
 }
 
-label.units.default <-
-function (x, none = "", ...) 
-{
-  NextMethod(units.default)
-}
-
-# label.units.xts methods
-`label.units<-.xts` <- 
+# units.labels.xts methods
+`units.labels<-.xts` <- 
   function (x, self = FALSE, by.name = FALSE, ..., value) 
   {
     if (!is.xts(x)) {
@@ -146,19 +125,19 @@ function (x, none = "", ...)
       xtsAttributes(x) <- list(units=value) # Add the label to the xtsAttributes
     }
     else { # Label the variables in the xts object
-      xtsAttributes(x)$unit.labels <- vector("list",ncol(x)) # Create the list of unit.labels
-      names(xtsAttributes(x)$unit.labels) <- names(x) # and name it.
+      xtsAttributes(x)$var.units <- vector("list",ncol(x)) # Create the list of units.labels
+      names(xtsAttributes(x)$var.units) <- names(x) # and name it.
       
       # If either by.name is selected or the value is a list <= the number of variables, use by.name.
-      if (by.name || (is.list(value) && (length(value) <= length(xtsAttributes(x)$unit.labels)))) { # This can be used to set a subset of the units labels
-        xtsAttributes(x)$unit.labels <- modifyList(xtsAttributes(x)$unit.labels,value)
+      if (by.name || (is.list(value) && (length(value) <= length(xtsAttributes(x)$var.units)))) { # This can be used to set a subset of the units labels
+        xtsAttributes(x)$var.units <- modifyList(xtsAttributes(x)$var.units,value)
       }
       else {
         if (length(value) != ncol(x)) # if value is a vector, length must = number of columns in the xts object
           stop("value vector must be the same length as x")
         # If value is a vector, then each item becames the units.label for the corresponding variable.
         for (i in seq(ncol(x)))
-          xtsAttributes(x)[["unit.labels"]][i] <- value[i]
+          xtsAttributes(x)[["units.labels"]][i] <- value[i]
       }
     }
     # Make the object labelled class and return it
@@ -168,8 +147,8 @@ function (x, none = "", ...)
     return(x)
   }
 
-#   label.units.xts object method
-label.units.xts <-
+#   units.labels.xts object method
+units.labels.xts <-
   function (x, default = NULL, self = FALSE, ...) 
   {
     if (self) {
@@ -182,7 +161,7 @@ label.units.xts <-
       else if (length(default) == 0) {
         default <- list(default)
       }
-      units <- xtsAttributes(x) [["unit.labels"]]
+      units <- xtsAttributes(x) [["units.labels"]]
       return(units)
     }
   }
@@ -190,21 +169,20 @@ label.units.xts <-
 
 # print.labelled -- modified from original to handle xts
 print.labelled <-
-function (x, self=FALSE, labels = FALSE, ...) 
+function (x, self=FALSE, labels = TRUE, ...) 
 {
   x.orig <- x # Save a copy of the original
   if(is.xts(x)) { # This is added for xts
-    if (self) {
-      if (labels)
-        label(x, self = TRUE)
-    }
+    if (labels)
+      if (self) {
+          label(x, self = TRUE)
+          label(x, self = TRUE) <- NULL
+        }
     else {
-      if (labels) {
         label(x)
-        xtsAttributes(x)$var.labels <- modifyList(xtsAttributes(x),list(var.labels = NULL), keep.null = TRUE)
-      }
-      if (length(xtsAttributes(x)$unit.labels))
-        xtsAttributes(x) <- modifyList(xtsAttributes(x),list(unit.labels = NULL), keep.null = TRUE)
+        xtsAttributes(x)$var.labels <- modifyList(xtsAttributes(x),list(var.labels = NULL), keep.null = TRUE) # NEED TO ADD THIS FUNCTION TO label() itself - remove label
+        if (length(xtsAttributes(x)$var.units))
+         xtsAttributes(x) <- modifyList(xtsAttributes(x),list(units.labels = NULL), keep.null = TRUE)
     }
   }
   else { # This is original
@@ -215,10 +193,13 @@ function (x, self=FALSE, labels = FALSE, ...)
     cat(attr(x, "label", exact = TRUE), if (length(u)) 
       paste("[", u, "]", sep = ""), "\n")
     attr(x, "label") <- NULL
-  } # Moved this up here because the rest is common
-    class(x) <- if (length(class(x)) == 1 && class(x) == "labelled") 
-      NULL
-    else class(x)[class(x) != "labelled"]
+  }
+  
+  # Moved this up here because the rest is common
+    class(x) <-
+      if (length(class(x)) == 1 && class(x) == "labelled") 
+        NULL
+      else class(x)[class(x) != "labelled"]
     if (!length(attr(x, "class"))) 
       attr(x, "class") <- NULL
     NextMethod("print")
@@ -236,7 +217,8 @@ as.labelled.xts.data.frame <- function(x, ...)
   x.df <- as.data.frame(x)
   if (!(is.null(xtsAttributes(x)$label))) label(x.df, self = TRUE) <- label(x, self = TRUE)
   x.df <- label.cols(x.df, labels =  xtsAttributes(x)$var.labels)
-  x.df <- label.cols(x.df, as.units = TRUE, labels = xtsAttriutes(x)$unit.labels)
+  x.df <- label.cols(x.df, as.units = TRUE, labels = xtsAttriutes(x)$var.units)
+  row.names(x.df) <- index(x)
   class(x.df) <- c("labelled", class(x.df))
   x.df
 }
@@ -262,115 +244,26 @@ label.cols <- function(x, as.units = FALSE, ...)
 }
 
 
-print.xts <-
-function (x, ...) 
-{
-  x <- as.data.frame(x)
-  NextMethod("print")
-}
-
-### Generic methods
-#   Replacement method
-`label<-` <-
-function (x, ..., value) 
-  UseMethod("label<-")
-
-#   Object method
-label <-
-function (x, default = NULL, ...) 
-  UseMethod("label")
-
-
-## Default methods
-#   Default label replacement method
-`label<-.default` <-
-function (x, ..., value) 
-{
-  if (is.list(value)) {
-    stop("cannot assign a list to be a object label")
-  }
-  if (length(value) != 1L) {
-    stop("value must be character vector of length 1")
-  }
-  attr(x, "label") <- value
-  if (!("labelled" %in% class(x))) {
-    class(x) <- c("labelled", class(x))
-  }
-  return(x)
-}
-
-#   Default label method
-label.default <-
-function (x, default = NULL, units = plot, plot = FALSE, grid = FALSE, 
-          html = FALSE, ...) 
-{
-  if (length(default) > 1) 
-    stop("the default string cannot be of length greater then one")
-  at <- attributes(x)
-  lab <- at[["label"]]
-  if (length(default) && (!length(lab) || lab == "")) 
-    lab <- default
-  un <- at$units
-  labelPlotmath(lab, if (units) 
-    un
-    else NULL, plotmath = plot, grid = grid, html = html)
-}
+# print.xts <-
+# function (x, ...) 
+# {
+#   x.orig <- x
+#   x <- as.data.frame(x)
+#   row.names(x) <- index(x.orig)
+#   
+#   class(x) <-
+#     if (length(class(x)) == 1 && class(x) == "labelled") 
+#       NULL
+#     else 
+#       class(x)[class(x) != "xts"]
+#   if (!length(attr(x, "class"))) 
+#     attr(x, "class") <- NULL
+#   NextMethod("print")
+#   invisible(x.orig)
+# }
 
 
-##  Data frame methods
-#   Data frame replacement method
-`label<-.data.frame` <-
-function (x, self = TRUE, ..., value) 
-{
-  if (!is.data.frame(x)) {
-    stop("x must be a data.frame")
-  }
-  if (missing(self) && is.list(value)) {
-    self <- FALSE
-  }
-  if (self) {
-    xc <- class(x)
-    xx <- unclass(x)
-    label(xx) <- value
-    class(xx) <- xc
-    return(xx)
-  }
-  else {
-    browser()
-    if (is.list(value)){
-      if (!all(names(value) %in% names(x)))
-        stop("Some value names are not found in x.")
-      for (v in names(value)) label(x[[v]]) <- value[[v]]
-    }
-    else { # Assume sequential
-      if (length(value) != ncol(x))
-        stop("If value is not a named list, its length must equal the number of columns in the data object.")
-    for (i in 1:ncol(x)) label(x[i]) <- value[i]
-    }
-  }
-  return(x)
-}
 
-#   Data frame object method
-label.data.frame <-
-function (x, default = NULL, self = FALSE, ...) 
-{
-  if (self) {
-    label.default(x)
-  }
-  else {
-    if (length(default) > 0 && length(default) != length(x)) {
-      stop("length of default must same as x")
-    }
-    else if (length(default) == 0) {
-      default <- list(default)
-    }
-    labels <- mapply(FUN = label, x = x, default = default, 
-                     MoreArgs = list(self = TRUE), USE.NAMES = FALSE)
-    names(labels) <- names(x)
-    return(labels)
-  }
-}
 
 
 ### Other labelling-specific functions
@@ -404,6 +297,10 @@ function (x, none = "", ...)
 
 
 ### Utility Functions ###
+
+
+
+
 
 # llist - list while preserving names or labels of component variables.
 llist <-
