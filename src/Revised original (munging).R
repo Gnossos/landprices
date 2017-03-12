@@ -7,39 +7,10 @@ setwd("~/OneDrive/Documents/Research-King Mac/Data Analysis/landprices")
 #   ProjectTemplate will automatically load files in the data directory into data frames.
 library("ProjectTemplate"); load.project(); # Let ProjectTemplate set things up for us.
 
-### Initialize the data as a data frame
-
-# Now the real work begins
-
-# ProjectTemplate should take care of these.
-# library(XML) # To read .zoo.
-# library(xts) # To store time series
-# library(tis) # For recession shading
-# library(ggplot2) # For finished (artsy) plotting
-# library(gridExtra) # For captions
-# library(ggfortify) # For plotting time series
-# library(tis) # For plotting NBER recession bars
-# library(scales) # For formatting various axes in various scales
-# library(TTR) # Useful functions for analyzing time-series financial data.
-# library(fredr) # To automate access to FRED datafre
-
-#### MUNGING BEGINS HERE ####
-
-
-
-
-
-
-
-
-
-
-
-
 
 #### PLOTTING BEGINS HERE ####
 
-### Theme selection & customization
+#### Theme selection & customization ####
 original_theme <- theme_set(theme_gray()) # The grey theme seems closest to CMS specifications.
 # Initialize current theme, with CMS specifications for 8 x 10 figure.
 this_theme <- theme_set(theme_gray(base_size = 14, base_family = "Helvetica"))
@@ -50,11 +21,8 @@ this_theme <- theme_update(
   axis.ticks = element_line(size=0.5),
   # Position the legend left-justified and in the lower right corner of the plot
   legend.justification = c(1,0),
-<<<<<<< HEAD
   legend.position = c(0.25,.75),
-=======
   legend.position = c(1,0.01),
->>>>>>> origin/master
   
   # Titles go in the figure captions
   legend.title = element_blank()
@@ -63,11 +31,7 @@ this_theme <- theme_update(
 # CMS wants line size to be 1.5 for 8 x 10, but this seems too thick. Use 1.0.
 update_geom_defaults("line", aes(size = 1.0))
 
-<<<<<<< HEAD
-### base.plot: Create a base plot, which will be used as a starting point for all of them.
-=======
-#### base.plot: Create a base plot, which will be used as a starting point for all of them.
->>>>>>> origin/master
+#### base.plot: Create a base plot, which will be used as a starting point for all of them. ####
 # Variables to be used throughout
 base.breaks <- c("Land","Structures","Market", "Compensation", "Consumer") # Standard breaks for legends
 base.colors <- c("Land"="#4daf4a", "Structures"="#ff7f00",
