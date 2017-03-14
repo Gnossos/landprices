@@ -7,29 +7,6 @@ setwd("~/OneDrive/Documents/Research-King Mac/Data Analysis/landprices")
 #   ProjectTemplate will automatically load files in the data directory into data frames.
 library("ProjectTemplate"); load.project(); # Let ProjectTemplate set things up for us.
 
-#' post.plot
-#' 
-#' Kludge to work around nberShade quirks
-#'
-#' @param plot A ggplot object
-#' @param nber=TRUE Include NBER recession bars
-#' @param nberFill A character string or variable indicating the color of the nber bars
-#' @param yLabels A label parameter for formatting the y labels
-#' @param legendPos A 2-item vector giving the coordinate for the legend box.
-#'
-#' @return The modified plot
-#' @export
-#'
-#' @examples
-post.plot <- function(plot, nber = TRUE, nberFill = "#a6cee3", yLabels = comma, legendPos = c(0.25,.75), alpha = 0.5, ...) {
-  if (nber)
-    nberShade(plot, fill = nberFill, alpha) +
-  else
-    plot +
-  scale_y_continuous(labels = yLabels) + 
-  theme(legend.position = legendPos)
-}
-
 #### PRELIMINARIES ####
 # Theme selection & customization ####
 original_theme <- theme_set(theme_gray()) # The grey theme seems closest to CMS specifications.
@@ -52,7 +29,7 @@ this_theme <- theme_update(
 # CMS wants line size to be 1.5 for 8 x 10, but this seems too thick. Use 1.0.
 update_geom_defaults("line", aes(size = 1.0))
 # Variables to be used throughout
-Require(RColorBrewer)
+require(RColorBrewer)
 landprices_breaks <- c("Land","Structures","Market", "Compensation", "Consumer") # Standard breaks for legends
 landprices_colors <- c( # Standard colors for the different series.
   "Land"= brewer.pal(8, "Dark2")[5],
@@ -78,8 +55,15 @@ landprices_labels <- c(
   )
 
 # base.plot: Create a base plot, which will be used as a starting point for all of them. ====
-base.plot <- ggplot(CSW.national.xts,
-                    aes(x=as.Date(index(CSW.national.xts)))) # Establish the plot based on original data
+default_data.xts <- CSW.national.xts
+
+# base.plot <- ggplot(data = fortify(CSW.national.xts, melt = TRUE),
+#                     aes(x = Index, y = Value),
+#                     CSW.national.xts) # Establish the plot based on original data
+               
+CSW.national.df <- data.frame(date = as.Date(index(CSW.national.xts)), coredata(CSW.national.xts))
+
+base.plot <- ggplot(CSW.national.df, aes())
 
 # Label the x axis
 base.plot <- base.plot + xlab("") # Don't label the x axis -- Decided not to label it. It's redundant.
@@ -117,62 +101,84 @@ base.plot <- base.plot + scale_x_date(
     guide = guide_legend()
   )
 
-  base.plot
+  base.plot # Comment out so as not to draw.
+  
 
   # END OF PRELIMINARIES
 
-# MARKET VALUE PLOTS ------------------------------------------------------
+# NOMINAL VALUE PLOTS ======================================================
+# Uses current dollars
+  
+# Nominal Value Area Plots -------------------------------------------------
+# 
+# The aesthetics of the filled areas
   fill_layers <- c(
-    geom_area(aes(y=MKVAL, fill = "Market", color="black")),
-    geom_area(aes(y=LAND + STRUC, fill="Structures", color="black")), # To stack them
-    geom_area(aes(y=LAND, fill="Land", color="black")),
-    geom_area(aes(y=STRUC, fill="Structures", color="black"))
+    geom_area(aes(x= date, y=MKVAL, fill = "Market", color="black")),
+    geom_area(aes(x= date, y=LAND + STRUC, fill="Structures", color="black")), # To stack them
+    geom_area(aes(x= date, y=LAND, fill="Land", color="black")),
+    geom_area(aes(x= date, y=STRUC, fill="Structures", color="black"))
   )
-  
-### MV.plot2: An area plot of market values using only Residential Land and Home values ====
+
+### NOM_plot2: Area plot of market values using only Residential Land and Home values ====
 legend.title <- "Aggregate\nMarket Value of:"
-MV.plot2 <- base.plot # Start the plot
   
-  # scale_x_date(expand = c(0,0))
+NOM_plot2 <- base.plot # Start the plot
+  NOM_plot2 <- NOM_plot2 + 
+    scale_x_date(
+      expand = c(0,0),
+      labels = date_format("%Y"),
+      breaks = date_breaks("2 years") 
+    )
   
   ## Map the data to the geometric objects:
-  MV.plot2 <- MV.plot2 + fill_layers[1] + fill_layers[3]
-  # MV.plot2 <- MV.plot2 + geom_area(aes(y=LAND, fill="Land", color="black"))
+  NOM_plot2 <- NOM_plot2 + fill_layers[1] + fill_layers[3]
+  NOM_plot2 <- NOM_plot2 + recession_bars()
+  NOM_plot2 <- NOM_plot2 + scale_y_continuous(labels = comma) + 
+    theme(legend.position = c(0.995, 0.05))
+NOM_plot2
 
-# MV.plot2 # Comment/uncomment for testing
-MV.plot2 <- post.plot(MV.plot2, legendPos = c(.15,.25))
-#                                                        expand = c(0,0,0.1,0)) # Label the ordinate axis
-MV.plot2
-
-### MV.plot3: An area plot of market values, using sum of land & structures ====
-MV.plot3 <- MV.plot2
+### NOM_plot3: Area plot of market values, using sum of land & structures ====
+NOM_plot3 <- NOM_plot2
 
   ## Map the data to the geometric objects:
-  MV.plot3$layers <- NULL
-  MV.plot3 <- MV.plot3 + fill_layers[1] + fill_layers[4] + fill_layers[3]
-
-# MV.plot3 # Comment/uncomment for testing
-MV.plot3 <- post.plot(MV.plot3, legendPos = c(.375,.35))
-MV.plot3
+  NOM_plot3$layers <- NULL
+  NOM_plot3 <- NOM_plot3 + fill_layers[1] + fill_layers[4] + fill_layers[3]
+  NOM_plot3 <- NOM_plot3 + recession_bars()
+NOM_plot3
 
 
-### MVpct.plot: Plot aggregate land values as percent of aggregate Home value ====
-MVpct.plot <- base.plot # Start the plot
+### NOM_pct_plot: Plot aggregate land values as percent of aggregate Home value ====
+
+# These things are tenative
+formula = y ~ x
+xx <- seq(from = 0, to = ((nrow(CSW.national.df)-1)/4), by = 0.25)
+fit <- lm((100 * CSW.national.df$LAND/CSW.national.df$MKVAL) ~ xx)
+
+
+NOM_pct_plot <- base.plot # Start the plot
   
-  ## Remove the label from the ordinate axis
-  # MVpct.plot <- MVpct.plot + theme(axis.title.y = element_blank())
-  MVpct.plot <- MVpct.plot + ylab("Aggregate Land Value Relative to House Value")
+  ## Reset vertical axis labels
+  NOM_pct_plot <- NOM_pct_plot + 
+    ylab("Aggregate Land Value Relative to House Value") +
+    scale_y_continuous(labels = percent_format())
   
   ## Map the data and a trend line to the geometric objects:
-  MVpct.plot <- MVpct.plot + geom_line(aes(y=(LAND/MKVAL), linetype="Land", color="Land"))
-  MVpct.plot <- MVpct.plot + geom_smooth(aes(y=(LAND/MKVAL), color = "Land", linetype = "Trend"),
-                                         method = "lm", se = FALSE, size = 0.5)
-  MVpct.plot <- MVpct.plot + scale_linetype_manual(values = landprices_linetypes, guide = "none")
-
-  MVpct.plot <- post.plot(MVpct.plot, yLabels = percent_format())
-  # MVpct.plot # Comment/uncomment for testing
-  MVpct.plot <- MVpct.plot + theme(legend.position = "none") # Have to add this here because nberShade forces legends.
-  MVpct.plot # Comment this out if not wanted
+  NOM_pct_plot <- NOM_pct_plot + geom_line(aes(x = date, y = (LAND/MKVAL), linetype = "Land", color="Land"))
+  NOM_pct_plot <- NOM_pct_plot + 
+    geom_smooth(aes(x = date, y=(LAND/MKVAL), color = "Land", linetype = "Trend"),
+          method = "lm", formula = formula, se = FALSE, size = 0.5)
+  NOM_pct_plot <- NOM_pct_plot +
+    stat_poly_eq(
+      aes(x = date, y = (LAND/MKVAL), label = ..eq.label..),
+      label.x.npc = .95, label.y.npc = .85,
+      formula = formula,
+      # color = landprices_colors$Land,
+      parse = TRUE)
+  NOM_pct_plot <- NOM_pct_plot + recession_bars()
+    
+  NOM_pct_plot <- NOM_pct_plot + scale_linetype_manual(values = landprices_linetypes, guide = "none")
+  NOM_pct_plot <- NOM_pct_plot + theme(legend.position = "none") # Have to add this here because nberShade forces legends.
+  NOM_pct_plot # Comment this out if not wanted
 
 
 

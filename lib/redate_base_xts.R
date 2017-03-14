@@ -1,4 +1,4 @@
-redate_base_xts <- function(original.xts, base=index(first(original.xts)),
+redate_base_xts <- function(original.xts, base=index(first(original.xts)), mult = 100,
                       dateclass="yearqtr", name="base", format = "%y")
   # Takes an array from an .xts object and resets their bases to the new base date. Returns them as their own .xts object
   # original.xts - required
@@ -8,7 +8,14 @@ redate_base_xts <- function(original.xts, base=index(first(original.xts)),
   # format = "%y" (2-digiit year without century; see format() for other options)
 {
   # Change the base of each column specified by original.xts
-  redated.xts <- 100*scale(original.xts, center = FALSE, scale = original.xts[base,])
+  
+  if (!is.Date(base)) {
+    base <- as.Date(base)
+    if (!is.Date(base))
+        warning("The specified base is not a date, and I can't coerce it into being one. This may cause an error.")
+  }
+  
+  redated.xts <- scale(mult * original.xts, center = FALSE, scale = (original.xts[base,]))
 
   # Add names to redated.xts
   if (length(format) == 0)
